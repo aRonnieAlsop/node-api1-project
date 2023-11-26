@@ -12,9 +12,10 @@ server.get('/api/users', (req, res) => {
             res.status(200).json(users)
         })
         .catch(err => {
-            res.status(500).json({ error: err.message })
+            res.status(500).json({ message: "The users information could not be retrieved"  })
         })
 })
+
 
 server.get('/api/users/:id', (req, res) => {
     const { id } = req.params
@@ -23,21 +24,28 @@ server.get('/api/users/:id', (req, res) => {
         .then(user => {
             user
              ? res.status(200).json(user)
-             : res.status(404).json({ message: `no user with id ${id}` })
+             : res.status(404).json({ message: "The user with the specified ID does not exist"  })
         })
         .catch(err => {
-            res.status(500).json({ error: err.message })
+            res.status(500).json({ message: "The user information could not be retrieved" })
         })
 })
 
+
+
 server.post('/api/users', async (req, res) => {
     const user = req.body
-    try {
-        const newUser = await Users.create(user)
-        res.status(201).json(newUser)
-    } catch (err) {
-        res.status(500).json({ error: err.message })
-    }
+
+    if (!user.name || !user.bio) {
+        res.status(400).json({ message: 'Please provide name and bio for the user'})
+    } else {
+        try {
+            const newUser = await Users.create(user)
+            res.status(201).json(newUser)
+        } catch (err) {
+            res.status(500).json({ error: err.message })
+        }
+    }  
 })
 
 server.put('/api/users/:id', async (req, res) => {
