@@ -36,7 +36,7 @@ server.post('/api/users', (req, res) => {
     const user = req.body
     Users.insert(user)
     if (!user.name || !user.bio) {
-        res.status(422).json({ message: 'Please provide name and bio for the user'})
+        res.status(400).json({ message: 'Please provide name and bio for the user'})
     } else {
       Users.insert(user)
         .then(newUser => {
