@@ -3,11 +3,10 @@ const express = require('express')
 const Users = require('./users/model')
 
 const server = express()
-
 server.use(express.json())
 
 server.get('/api/users', (req, res) => {
-    Users.findAll()
+    Users.find()
         .then(users => {
             res.status(200).json(users)
         })
@@ -33,18 +32,19 @@ server.get('/api/users/:id', (req, res) => {
 
 
 
-server.post('/api/users', async (req, res) => {
+server.post('/api/users', (req, res) => {
     const user = req.body
-
+    Users.insert(user)
     if (!user.name || !user.bio) {
-        res.status(400).json({ message: 'Please provide name and bio for the user'})
+        res.status(422).json({ message: 'Please provide name and bio for the user'})
     } else {
-        try {
-            const newUser = await Users.create(user)
+      Users.insert(user)
+        .then(newUser => {
             res.status(201).json(newUser)
-        } catch (err) {
-            res.status(500).json({ error: err.message })
-        }
+        })
+        .catch(err => {
+            res.status(500).json({ message: "There was an error while saving the user to the database" })
+        })
     }  
 })
 
@@ -80,4 +80,10 @@ server.delete('	/api/users/:id', (req, res) => {
       })
 })
 
-module.exports = {}; // EXPORT YOUR SERVER instead of {}
+server.use('*', (req, res) => {
+    res.status(404).json({
+        message: 'not found'
+    })
+})
+
+module.exports =  server  // EXPORT YOUR SERVER instead of {}
