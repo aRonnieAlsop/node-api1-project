@@ -6,6 +6,7 @@ const server = express()
 server.use(express.json())
 
 
+
 server.put('/api/users/:id', async (req, res) => {
 
     try {
@@ -34,23 +35,26 @@ server.put('/api/users/:id', async (req, res) => {
     }
 })
 
-server.delete('	/api/users/:id', async (req, res) => {
-  try {
+server.delete('/api/users/:id', async (req, res) => {
     const possibleUser = await Users.findById(req.params.id)
     if (!possibleUser) {
-        res.status(404).json({ message: "The user with the specified ID does not exist" })
+        res.status(404).json({
+            message: 'The user with the specified ID does not exist'
+        })
     } else {
-        const deletedUser = await Users.remove(possibleUser.id)
-        res.status(200).json(deletedUser)
+        Users.remove(possibleUser.id)
+            .then(deletedUser => {
+                res.json(deletedUser);
+            })
+            .catch(error => {
+                res.status(500).json({
+                    message: 'The user could not be removed'
+                })
+            })
     }
-  } catch (err) {
-    res.status(500).json({ 
-        message: "The user information could not be modified",
-        error: err.message,
-        stack: err.stack 
-    })
-  }
 })
+  
+  
 
 
 server.post('/api/users', (req, res) => {
@@ -76,14 +80,13 @@ server.post('/api/users', (req, res) => {
 server.get('/api/users', (req, res) => {
     Users.find()
         .then(users => {
-            res.status(users)
+            res.json(users)
         })
         .catch(err => {
-            res.status(500).json({ 
-                message: "The users information could not be retrieved",
-                error: err.message,
-                stack: err.stack,
-              })
+            res.status(500).json({
+                message: 'error getting users',
+                err: err.message,
+            })
         })
 })
 
